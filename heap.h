@@ -24,7 +24,7 @@ typedef struct {
 } Heap__Layout;
 
 #define layoutof(heap) \
-    (Heap__Layout) struct { \
+    (Heap__Layout) { \
         .item_size = sizeof(*(heap)->items), \
     }
 
@@ -35,12 +35,12 @@ typedef struct {
 
 // TODO think about this?
 #define heap_pop(heap) \
-    (typeof((heap)->items)) heap__pop((Heap__Abstract *) heap, layoutof(heap))
+    (*typeof((heap)->items)) heap__pop((Heap__Abstract *) heap, layoutof(heap))
 
 #define heap_free(heap) free((heap)->items)
 
-void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout *l);
-void* heap__pop(Heap__Abstract *heap, Heap__Layout *l);
+void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l);
+void* heap__pop(Heap__Abstract *heap, Heap__Layout l);
 
 #endif // HEAP_H_
 
@@ -94,12 +94,12 @@ void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout *l)
     const size_t right = 2 * i + 2;
 
     int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap__cmp_int;
-    if(left < heap->capacity && cmp(heap__item_at(heap, left, l), heap__item_at(heap, largest, l)) > 0)
+    if(left < heap->count && cmp(heap__item_at(heap, left, l), heap__item_at(heap, largest, l)) > 0)
     {
         largest = left;
     }
 
-    if(right < heap->capacity && cmp(heap__item_at(heap, right, l), heap__item_at(heap, largest, l)) > 0)
+    if(right < heap->count && cmp(heap__item_at(heap, right, l), heap__item_at(heap, largest, l)) > 0)
     {
         largest = right;
     }
@@ -107,14 +107,14 @@ void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout *l)
     if(largest != i)
     {
         heap__swap(heap, i, largest, l);
-        heap__heapify(heap, largest);
+        heap__heapify(heap, largest, l);
     }
 }
 
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l)
 {
     size_t i = heap->count;
-    heap__append(heap, l, item);
+    heap__append(heap, item, l);
 
     int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap__cmp_int;
     while(i != 0 && cmp(heap__item_at(heap, (i - 1) / 2, l), heap__item_at(heap, i, l)) < 0)
