@@ -77,14 +77,12 @@ int heap__cmp_int(const void *a, const void *b)
 #define heap__item_at(heap, i, l) \
     (((uint8_t *) (heap)->items) + ((i) * (l).item_size))
 
-// TODO this is kinda dumb, but better than vlas 
 #define heap__swap(heap, i, j, l) \
     do { \
-        void *tmp = malloc(l.item_size); \
+        uint8_t tmp[(l).item_size]; \
         memmove(tmp, heap__item_at(heap, i, l), l.item_size); \
         memmove(heap__item_at(heap, i, l), heap__item_at(heap, j, l), l.item_size); \
         memmove(heap__item_at(heap, j, l), tmp, l.item_size); \
-        free(tmp); \
     } while(0)
 
 void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout l)
