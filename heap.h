@@ -36,6 +36,8 @@ typedef struct {
 #define heap_pop(heap) \
     (typeof((heap)->items)) heap__pop((Heap__Abstract *) heap, layoutof(heap))
 
+#define heap_free(heap) free((heap)->items)
+
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout *l);
 void* heap__pop(Heap__Abstract *heap, Heap__Layout *l);
 
@@ -43,9 +45,31 @@ void* heap__pop(Heap__Abstract *heap, Heap__Layout *l);
 
 #ifdef HEAP_IMPLEMENTATION
 
+#define HEAP_INIT_CAP 1024
+#define HEAP_GROW_RATE 1.5
+
+#define heap__reserve(heap, layout, expected) \
+    do { \
+        if((expected) > (heap)->capacity) \
+        { \
+            if((heap)->capacity == 0) (heap)->capacity = HEAP_INIT_CAP; \
+            while((expected) > (heap)->capacity) (heap)->capacity *= HEAP_GROW_RATE; \
+            (heap)->items = realloc((heap)->items, (layout)->item_size * (heap)->capacity); \
+            assert((heap)->items); \
+        } \
+    } while(0)
+
+#define heap__append(heap, layout, item) \
+    do { \
+        heap__reserve(heap, layout, (heap)->count + 1); \
+        memmove(((uint8_t *) (heap)->items) + (heap)->count, (item), (layout)->item_size); \
+        (heap)->count++; \
+    } while(0)
+
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout *l)
 {
-
+    heap__append(heap, l, item); 
+    
 }
 
 void* heap__pop(Heap__Abstract *heap, Heap__Layout *l)
