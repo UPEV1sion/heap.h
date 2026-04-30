@@ -87,7 +87,7 @@ int heap__cmp_int(const void *a, const void *b)
         free(tmp); \
     } while(0)
 
-void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout *l)
+void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout l)
 {
     size_t largest = i;
     const size_t left = 2 * i + 1;
