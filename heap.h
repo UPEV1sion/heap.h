@@ -1,10 +1,6 @@
 #ifndef HEAP_H_
 #define HEAP_H_
 
-#ifdef NO_DA_H
-#include "da.h"
-#endif // NO_DA_H
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
@@ -17,6 +13,7 @@
         T *items; \
         int (*cmp)(const void *, const void *); \
     }
+
 typedef struct {
     size_t count;
     size_t capacity;
@@ -47,6 +44,8 @@ typedef struct {
 
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l);
 void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l);
+int heap_cmp_int_desc(const void *a, const void *b);
+int heap_cmp_int_asc(const void *a, const void *b);
 
 #endif // HEAP_H_
 
@@ -55,11 +54,18 @@ void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l);
 #define HEAP_INIT_CAP 1024
 #define HEAP_GROW_RATE 1.5
 
-int heap__cmp_int(const void *a, const void *b)
+int heap_cmp_int_desc(const void *a, const void *b)
 {
     const int *ia = a;
     const int *ib = b;
     return (*ia > *ib) - (*ia < *ib);
+}
+
+int heap_cmp_int_asc(const void *a, const void *b)
+{
+    const int *ia = a;
+    const int *ib = b;
+    return (*ia < *ib) - (*ia > *ib);
 }
 
 #define heap__reserve(heap, expected, l) \
@@ -97,7 +103,7 @@ void heap__heapify(Heap__Abstract *heap, size_t i, Heap__Layout l)
     const size_t left = 2 * i + 1;
     const size_t right = 2 * i + 2;
 
-    int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap__cmp_int;
+    int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap_cmp_int_desc;
     if(left < heap->count && cmp(heap__item_at(heap, left, l), heap__item_at(heap, largest, l)) > 0)
     {
         largest = left;
@@ -120,7 +126,7 @@ void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l)
     size_t i = heap->count;
     heap__append(heap, item, l);
 
-    int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap__cmp_int;
+    int (*cmp)(const void *, const void *) = heap->cmp ? heap->cmp : heap_cmp_int_desc;
     while(i != 0 && cmp(heap__item_at(heap, (i - 1) / 2, l), heap__item_at(heap, i, l)) < 0)
     {
         const size_t parent = (i - 1) / 2;
