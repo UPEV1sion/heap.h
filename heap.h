@@ -5,6 +5,11 @@
 #include "da.h"
 #endif // NO_DA_H
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <assert.h>
+#include <string.h>
+
 #define Heap(T) \
     struct { \
         size_t count; \
@@ -30,17 +35,18 @@ typedef struct {
 
 #define heap_insert(heap, item) \
     heap__insert((Heap__Abstract *) heap, \
-            (typeof(*(heap)->items)[]{item}), \
+            (typeof(*(heap)->items)[]){item}, \
             layoutof(heap))
 
-// TODO think about this?
-#define heap_pop(heap) \
-    (*typeof((heap)->items)) heap__pop((Heap__Abstract *) heap, layoutof(heap))
+#define heap_pop(heap, out) \
+    heap__pop((Heap__Abstract *) heap, \
+            (out), \
+            layoutof(heap))
 
 #define heap_free(heap) free((heap)->items)
 
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l);
-void* heap__pop(Heap__Abstract *heap, Heap__Layout l);
+void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l);
 
 #endif // HEAP_H_
 
@@ -123,9 +129,18 @@ void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l)
     }
 }
 
-void* heap__pop(Heap__Abstract *heap, Heap__Layout l)
+void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l)
 {
-    
+    if(heap->count <= 0) return;
+
+    heap->count--;
+    const size_t last = heap->count;
+    memmove(out, heap->items, l.item_size);
+    memmove(heap->items,
+            ((uint8_t *)heap->items) + last * l.item_size,
+            l.item_size);
+
+    if(heap->count > 0) heap__heapify(heap, 0, l);
 }
 
 #endif // HEAP_IMPLEMENTATION
