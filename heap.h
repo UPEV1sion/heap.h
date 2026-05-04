@@ -40,12 +40,17 @@ typedef struct {
             (out), \
             layoutof(heap))
 
+#define heap_size(heap) (heap)->count
+
 #define heap_free(heap) free((heap)->items)
 
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l);
 void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l);
+
 int heap_cmp_int_desc(const void *a, const void *b);
 int heap_cmp_int_asc(const void *a, const void *b);
+int heap_cmp_cstr_desc(const void *a, const void *b);
+int heap_cmp_cstr_asc(const void *a, const void *b);
 
 #endif // HEAP_H_
 
@@ -66,6 +71,20 @@ int heap_cmp_int_asc(const void *a, const void *b)
     const int *ia = a;
     const int *ib = b;
     return (*ia < *ib) - (*ia > *ib);
+}
+
+int heap_cmp_cstr_desc(const void *a, const void *b)
+{
+    const char * const*ca = a;
+    const char * const*cb = b;
+    return strcmp(*ca, *cb);
+}
+
+int heap_cmp_cstr_asc(const void *a, const void *b)
+{
+    const char * const*ca = a;
+    const char * const*cb = b;
+    return strcmp(*cb, *ca);
 }
 
 #define heap__reserve(heap, expected, l) \
