@@ -176,7 +176,7 @@ void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l)
 /*
     Revision history:
 
-        2.1.0 (2026-05-12) Remove cmp from the comparators for a cleaner interface
+        2.0.0 (2026-05-12) Remove cmp from the comparators for a cleaner interface
         1.1.0 (2026-05-12) Add heap_clear
         1.0.0 (2026-05-04) First release
 */
