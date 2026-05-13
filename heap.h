@@ -44,6 +44,8 @@ typedef struct {
 
 #define heap_clear(heap) (heap)->count = 0
 
+#define heap_peek(heap) (assert((heap)->count > 0), (heap)->items[0])
+
 #define heap_free(heap) free((heap)->items)
 
 void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l);
@@ -158,7 +160,7 @@ void heap__insert(Heap__Abstract *heap, void *item, Heap__Layout l)
 
 void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l)
 {
-    if(heap->count <= 0) return;
+    assert(heap->count > 0);
 
     heap->count--;
     const size_t last = heap->count;
@@ -176,6 +178,7 @@ void heap__pop(Heap__Abstract *heap, void *out, Heap__Layout l)
 /*
     Revision history:
 
+        2.0.1 (2026-05-13) Add heap_peek
         2.0.0 (2026-05-12) Remove cmp from the comparators for a cleaner interface
         1.1.0 (2026-05-12) Add heap_clear
         1.0.0 (2026-05-04) First release

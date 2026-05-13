@@ -40,6 +40,7 @@ int main(void)
 ```text
 heap_insert(heap_ptr, item)   insert an item into the heap
 heap_pop(heap_ptr, out_ptr)   pop the top item of the heap
+heap_peek(heap_ptr)           peek the top item of the heap
 heap_size(heap_ptr)           get the number of elements in the heap
 heap_clear(heap_ptr)          remove all elements from the heap
 heap_free(heap_ptr)           free the heap memory
